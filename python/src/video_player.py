@@ -252,7 +252,38 @@ class VideoPlayer:
         Args:
             search_term: The query to be used in search.
         """
-        print("search_videos needs implementation")
+        all_videos = self._video_library.get_all_videos()
+
+        # filtering for videos that match the search term
+        filtered_videos = list(filter(lambda x: search_term.lower() in x.title.lower(), all_videos))
+
+        # filtering again to remove flagged videos from results
+        filtered_videos = list(filter(lambda x: not x.flagged, filtered_videos))
+
+        filtered_videos.sort(key=lambda v: v.title)
+
+        if len(filtered_videos) == 0:
+            print(f"No search results for {search_term}")
+            return
+
+        print(f"Here are the results for {search_term}:")
+
+        # nice Pythonic way of making a numbered list
+        for idx, video in enumerate(filtered_videos):
+            print(f"{idx+1}) {video.title} ({video.video_id}) [{' '.join(video.tags) if len(video.tags) > 0 else ''}]")
+
+        print("Would you like to play any of the above? If yes, specify the number of the video.\n"
+              "If your answer is not a valid number, we will assume it's a no.")
+
+        try:
+            choice = int(input())
+        except ValueError:
+            return
+
+        if not 1 <= choice <= len(filtered_videos):
+            return
+
+        self.play_video(filtered_videos[choice-1].video_id)
 
     def search_videos_tag(self, video_tag):
         """Display all videos whose tags contains the provided tag.
@@ -260,7 +291,40 @@ class VideoPlayer:
         Args:
             video_tag: The video tag to be used in search.
         """
-        print("search_videos_tag needs implementation")
+        all_videos = self._video_library.get_all_videos()
+
+        # filtering for videos with the searched tag. more readable than using filter()
+        filtered_videos = []
+        for video in all_videos:
+            if video_tag.lower() in map(lambda x: x.lower(), video.tags):
+                filtered_videos.append(video)
+
+        # filtering out flagged videos
+        filtered_videos = list(filter(lambda x: not x.flagged, filtered_videos))
+
+        filtered_videos.sort(key=lambda v: v.title)
+
+        if len(filtered_videos) == 0 or not video_tag[0] == "#":
+            print(f"No search results for {video_tag}")
+            return
+
+        print(f"Here are the results for {video_tag}:")
+        for idx, video in enumerate(filtered_videos):
+            print(
+                f"{idx + 1}) {video.title} ({video.video_id}) [{' '.join(video.tags) if len(video.tags) > 0 else ''}]")
+
+        print("Would you like to play any of the above? If yes, specify the number of the video.\n"
+              "If your answer is not a valid number, we will assume it's a no.")
+
+        try:
+            choice = int(input())
+        except ValueError:
+            return
+
+        if not 1 <= choice <= len(filtered_videos):
+            return
+
+        self.play_video(filtered_videos[choice - 1].video_id)
 
     def flag_video(self, video_id, flag_reason=""):
         """Mark a video as flagged.

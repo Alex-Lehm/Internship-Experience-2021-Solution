@@ -5,6 +5,8 @@ from .video_library import VideoLibrary
 import random
 
 
+# TODO 01/07/2021: Replace dictionary Playlist implementation with OOP implementation using video_playlist.py
+
 class VideoPlayer:
     """A class used to represent a Video Player."""
 

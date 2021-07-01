@@ -333,7 +333,23 @@ class VideoPlayer:
             video_id: The video_id to be flagged.
             flag_reason: Reason for flagging the video.
         """
-        print("flag_video needs implementation")
+        if self._video_library.get_video(video_id) is None:
+            print(f"Cannot flag video: Video does not exist")
+            return
+
+        if self._video_library.get_video(video_id).flagged:
+            print("Cannot flag video: Video is already flagged")
+            return
+
+        video = self._video_library.get_video(video_id)
+        video.flagged = True
+        video.flag_reason = flag_reason if not flag_reason == "" else "Not supplied"
+        self.flagged_videos_counter += 1
+
+        if self.playing == video_id:
+            self.stop_video()
+
+        print(f"Successfully flagged video: {video.title} (reason: {video.flag_reason})")
 
     def allow_video(self, video_id):
         """Removes a flag from a video.
@@ -341,4 +357,18 @@ class VideoPlayer:
         Args:
             video_id: The video_id to be allowed again.
         """
-        print("allow_video needs implementation")
+        video = self._video_library.get_video(video_id)
+
+        if video is None:
+            print("Cannot remove flag from video: Video does not exist")
+            return
+
+        if not video.flagged:
+            print("Cannot remove flag from video: Video is not flagged")
+            return
+
+        video.flagged = False
+        video.flag_reason = ""
+        self.flagged_videos_counter -= 1
+
+        print(f"Successfully removed flag from video: {video.title}")
